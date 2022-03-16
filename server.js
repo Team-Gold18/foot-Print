@@ -1,26 +1,26 @@
-require('dotenv').config({ path: './.env' });
-const express = require('express');
-const connectDB = require('./config/db.config');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+require("dotenv").config({ path: "./.env" });
+var express = require('express')
+var app = express()
+var bodyParser = require('body-parser')
+var cors = require('cors')
+const routes = require('./routes');
+const { json, urlencoded } = require('body-parser');
 
-const app = express();
-
+// Middleware
+app.use(json());
+app.use(urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(
+    cors({
+        origin: "*", // <-- allow all origins
+        credentials: true,
+    })
+);
 
-connectDB();
+// // Routes
+// app.use('/', routes);
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-app.use('/', require('./routes/index'));
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
-});
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+    console.log(`Listing to port ${port}`);
+})
