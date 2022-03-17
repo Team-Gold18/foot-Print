@@ -75,5 +75,20 @@ User.updateUser = (id,updatedUser, result) => {
   );
 };
 
+//findOne
+User.findOne = (email, result)=>{
+  sql.query(`SELECT * FROM user WHERE email = '${email}'`, (err,res)=>{
+    if(err){
+      result(err, "");
+      return;
+    }
+    if(res.length){
+      result("", res);
+      return;
+    }
+    result("", "");
+      return;
+  })
+}
 
 module.exports = User;
