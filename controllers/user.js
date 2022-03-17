@@ -1,6 +1,7 @@
 const User = require('../models/user.model');
 const Membership = require('../models/membership.model');
 const UserAndMemberRelation = require('../models/userandmemberrelation.model');
+const utils = require('../lib/utils.js');
 
 const cloudinary = require('cloudinary').v2;
 cloudinary.config({
@@ -98,15 +99,18 @@ exports.getMembershipConfirmation = async function (req, res) {
 
 //registerUser
 exports.registerUser = async function (req, res) {
-  const userId = 1;
   const email = req.body.email;
   const membershipNumbers = req.body.memberAccessCodes;
+  const saltHash = utils.genPassword(req.body.password);
+  const salt = saltHash.salt;
+  const hash = saltHash.hash;
 
   const newUser = new User({
     first_name: req.body.first_name,
     last_name: req.body.last_name,
     email: req.body.email,
-    password: req.body.password,
+    salt: salt,
+    hash: hash,
   });
 
   try {
@@ -127,7 +131,7 @@ exports.registerUser = async function (req, res) {
         });
       } else {
         // Create a User
-        User.create(newUser, (err, data) => {
+        User.create(newUser, (err, user) => {
           if (err) {
             res.status(500).send({
               code: 500,
@@ -135,10 +139,10 @@ exports.registerUser = async function (req, res) {
               message: err.message,
             });
           } else {
-            // const tokenObject = utils.issueJWT(data);
+            const tokenObject = utils.issueJWT(user);
             if (membershipNumbers.length) {
               UserAndMemberRelation.create(
-                userId,
+                user.id,
                 membershipNumbers,
                 (err, data) => {
                   if (err) {
@@ -156,10 +160,9 @@ exports.registerUser = async function (req, res) {
             res.status(200).json({
               success: true,
               message: 'successfully registered user',
-              //device_id: req.body.device_token,
-              //token: tokenObject.token,
-              //expiresIn: tokenObject.expires,
-              //sub: tokenObject.sub,
+              token: tokenObject.token,
+              expiresIn: tokenObject.expires,
+              sub: tokenObject.sub,
             });
           }
         });
@@ -183,30 +186,35 @@ exports.registerUser = async function (req, res) {
 exports.loginUser = async function (req, res, next) {
   try {
     User.findOne(req.body.email, (err, user) => {
-      //console.log(user[0].password);
-      if (err) {
+      if (!user) {
         console.log(err.message);
         return res.status(401).json({
           success: false,
-          message: err,
+          message: 'Invalid Email',
         });
       }
-      //   const isValid = utils.validPassword(
-      //     req.body.password,
-      //     user.hash,
-      //     user.salt
-      //   );
-      if (user.length) {
-        if (user[0].password == req.body.password) {
-          return res.status(200).json({
-            success: 200,
-            message: 'user login successfully',
-          });
-        }
+
+      const isValid = utils.validPassword(
+        req.body.password,
+        user[0].hash,
+        user[0].salt
+      );
+
+      if (isValid) {
+        const tokenObject = utils.issueJWT(user);
+
+        res.status(200).json({
+          success: true,
+          status: 'LoginSuccess',
+          token: tokenObject.token,
+          expiresIn: tokenObject.expires,
+          sub: tokenObject.sub,
+        });
       } else {
-        return res.status(200).json({
-          success: 200,
-          message: 'Invalid username or password',
+        res.status(401).json({
+          success: false,
+          status: 'PasswordError',
+          message: 'you entered the wrong password',
         });
       }
     });
