@@ -2,13 +2,12 @@ const User = require('../models/user.model');
 const Membership = require('../models/membership.model');
 const UserAndMemberRelation = require('../models/userandmemberrelation.model');
 
-const cloudinary = require("cloudinary").v2;
+const cloudinary = require('cloudinary').v2;
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
 });
-
 
 exports.getMembershipDetails = async function (req, res) {
   try {
@@ -180,7 +179,45 @@ exports.registerUser = async function (req, res) {
   }
 };
 
-
+//loginUser
+exports.loginUser = async function (req, res, next) {
+  try {
+    User.findOne(req.body.email, (err, user) => {
+      //console.log(user[0].password);
+      if (err) {
+        console.log(err.message);
+        return res.status(401).json({
+          success: false,
+          message: err,
+        });
+      }
+      //   const isValid = utils.validPassword(
+      //     req.body.password,
+      //     user.hash,
+      //     user.salt
+      //   );
+      if (user.length) {
+        if (user[0].password == req.body.password) {
+          return res.status(200).json({
+            success: 200,
+            message: 'user login successfully',
+          });
+        }
+      } else {
+        return res.status(200).json({
+          success: 200,
+          message: 'Invalid username or password',
+        });
+      }
+    });
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      code: 400,
+      message: err.message,
+    });
+  }
+};
 
 exports.updateUser = async function (req, res) {
   try {
@@ -189,40 +226,38 @@ exports.updateUser = async function (req, res) {
         return res.status(400).json({
           success: false,
           code: 500,
-          status: "not success",
-          message: "error",
+          status: 'not success',
+          message: 'error',
         });
       }
       if (data.length) {
         let result;
         if (req.file) {
           result = await cloudinary.uploader.upload(req.file.path, {
-            folder: "profilePicture",
+            folder: 'profilePicture',
           });
         }
 
         const updatedUser = new User({
-         
           first_name: req.body.first_name || data[0].first_name,
           last_name: req.body.last_name || data[0].last_name,
           profilePicture: result?.secure_url || data[0].profilePicture,
           email: req.body.email || data[0].email,
         });
 
-        
         User.updateUser(req.params.id, updatedUser, (err, data) => {
           if (err)
             return res.status(500).send({
               success: false,
               code: 500,
-              status: "not success",
+              status: 'not success',
               message: err.message,
             });
           else {
             return res.status(200).json({
               success: true,
               code: 200,
-              status: "success",
+              status: 'success',
               document: data,
             });
           }
@@ -231,8 +266,8 @@ exports.updateUser = async function (req, res) {
         return res.status(200).json({
           success: true,
           code: 200,
-          status: "success",
-          message: "User is not found",
+          status: 'success',
+          message: 'User is not found',
         });
       }
     });

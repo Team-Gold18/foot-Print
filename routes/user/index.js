@@ -8,7 +8,9 @@ routes.get(
   '/getMembershipConfirmation',
   UserController.getMembershipConfirmation
 );
-routes.post('/registerUser', UserController.registerUser);
+routes.post('/registerUser', UserController.registerUser); 
+
+routes.post('/loginUser', UserController.loginUser)
 
 routes.put("/updateUser/:id", uploads.single("profilePicture"),UserController.updateUser);
 
