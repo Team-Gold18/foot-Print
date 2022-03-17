@@ -1,6 +1,11 @@
-const routes = require("express").Router();
+const routes = require('express').Router();
 
+var UserController = require('../../controllers/user');
+routes.get('/getMembershipDetails/:email', UserController.getMembershipDetails);
+routes.get(
+  '/getMembershipConfirmation',
+  UserController.getMembershipConfirmation
+);
+routes.post('/registerUser', UserController.registerUser);
 
-var UserController = require("../../controllers/user");
-routes.post("/register", UserController.register);
 module.exports = routes;
