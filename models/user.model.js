@@ -3,11 +3,12 @@ const User = function (user) {
   this.first_name = user.first_name;
   this.last_name = user.last_name;
   this.email = user.email;
-  this.password = user.password;
+  this.salt=user.salt;
+  this.hash=user.hash;
   this.profilePicture = user.profilePicture;
 };
 
-//findByEmail
+//findByEmail 
 User.findByEmail = (email, result) => {
   sql.query(`SELECT * FROM user WHERE email = '${email}'`, (err, res) => {
     if (err) {
