@@ -151,7 +151,7 @@ exports.updateDocument = async function (req, res) {
           cloudinary_id: result?.public_id || data[0].cloudinary_id,
         });
 
-        console.log("new", updatedDocument);
+       // console.log("new", updatedDocument);
         Document.updateDocument(req.params.id, updatedDocument, (err, data) => {
           if (err)
             return res.status(500).send({
