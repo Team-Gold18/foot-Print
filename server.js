@@ -17,7 +17,6 @@ app.use(
     })
 );
 
-// // Routes
 app.use('/', routes);
 
 const port = process.env.PORT || 5000;
