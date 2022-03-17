@@ -17,8 +17,8 @@ app.use(
     })
 );
 
-// // Routes
-// app.use('/', routes);
+// Routes
+app.use('/', routes);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
