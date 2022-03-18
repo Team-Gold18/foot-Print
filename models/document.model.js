@@ -6,6 +6,7 @@ const Document = function (data) {
   this.document_name = data.document_name;
   this.documentFile = data.documentFile;
   this.cloudinary_id = data.cloudinary_id;
+  this.created_at=data.created_at;
 };
 
 Document.uploadDocuments = (newDocument, result) => {
@@ -37,7 +38,7 @@ Document.getAllDocuments = (result)=>{
 }
 
 Document.getDocumentById = (id, result)=>{
-  sql.query(`SELECT * FROM documents WHERE id = ${id}`, (err,res)=>{
+  sql.query(`SELECT * FROM documents WHERE id = '${id}'`, (err,res)=>{
     if(err){
       result(err, "");
       return;
@@ -51,6 +52,82 @@ Document.getDocumentById = (id, result)=>{
   })
 }
 
+Document.getDocumentByDoctorId = (doctor_id, result)=>{
+  sql.query(`SELECT * FROM documents WHERE doctor_id = '${doctor_id}'`, (err,res)=>{
+    if(err){
+      result(err, "");
+      return;
+    }
+    if(res.length){
+      result("", res);
+      return;
+    }
+    result("", "");
+      return;
+  })
+}
+
+Document.getDocumentByLogedDoctor = (user_id, result)=>{
+  sql.query(`SELECT * FROM documents WHERE doctor_id = '${user_id}'`, (err,res)=>{
+    if(err){
+      result(err, "");
+      return;
+    }
+    if(res.length){
+      result("", res);
+      return;
+    }
+    result("", "");
+      return;
+  })
+}
+
+Document.getDocumentByName = (name, result)=>{
+  console.log("name",name);
+  sql.query(`SELECT * FROM documents WHERE document_name = '${name}'`, (err,res)=>{
+    if(err){
+      result(err, "");
+      return;
+    }
+    console.log(res);
+    if(res.length){
+      result("", res);
+      return;
+    }
+    result("", "");
+      return;
+  })
+}
+
+Document.sortDocumentsByName = (result)=>{
+  sql.query("SELECT * FROM documents ORDER BY document_name ASC", (err,res)=>{
+    if(err){
+      result(err, "");
+      return;
+    }
+    if(result.length){
+      result("", res);
+      return;
+    }
+    result("", "");
+      return;
+  })
+}
+
+Document.sortDocumentsByDate = (result)=>{
+  sql.query("SELECT * FROM documents ORDER BY created_at ASC", (err,res)=>{
+    if(err){
+      result(err, "");
+      return;
+    }
+    if(result.length){
+      result("", res);
+      return;
+    }
+    result("", "");
+      return;
+  })
+}
 
 Document.updateDocument = (id, updatedDocument, result) => {
   sql.query(

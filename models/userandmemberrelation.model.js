@@ -21,4 +21,4 @@ UserAndMemberRelation.create = (userId, memberId, result) => {
   });
 };
 
-module.exports = UserAndMemberRelation;
+module.exports = UserAndMemberRelation;   
