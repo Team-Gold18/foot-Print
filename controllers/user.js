@@ -2,8 +2,9 @@ const User = require('../models/user.model');
 const Membership = require('../models/membership.model');
 const UserAndMemberRelation = require('../models/userandmemberrelation.model');
 const utils = require('../lib/utils.js');
-const { emailVerification } = require("../lib/emailService");
-const jsonwebtoken = require("jsonwebtoken");
+const { emailVerification } = require('../lib/emailService');
+const jsonwebtoken = require('jsonwebtoken');
+const e = require('cors');
 
 const cloudinary = require('cloudinary').v2;
 cloudinary.config({
@@ -159,15 +160,18 @@ exports.registerUser = async function (req, res) {
               );
             }
             //////////////////////////////////////////////////
-            emailVerification(tokenObject.token, user);
+            //emailVerification(tokenObject.token, user);
             //////////////////////////////////////////////////
-            res.status(200).json({
-              success: true,
-              message: 'successfully registered user',
-              token: tokenObject.token,
-              expiresIn: tokenObject.expires,
-              sub: tokenObject.sub,
-            });
+            if (emailVerification(tokenObject.token, user)) {
+              res.status(200).json({
+                success: true,
+                message:
+                  'successfully registered user, Please verify your email !',
+                token: tokenObject.token,
+                expiresIn: tokenObject.expires,
+                sub: tokenObject.sub,
+              });
+            }
           }
         });
       }
@@ -194,32 +198,48 @@ exports.loginUser = async function (req, res, next) {
         console.log(err.message);
         return res.status(401).json({
           success: false,
-          message: 'Invalid Email',
-        });
-      }
-
-      const isValid = utils.validPassword(
-        req.body.password,
-        user[0].hash,
-        user[0].salt
-      );
-
-      if (isValid) {
-        const tokenObject = utils.issueJWT(user);
-
-        res.status(200).json({
-          success: true,
-          status: 'LoginSuccess',
-          token: tokenObject.token,
-          expiresIn: tokenObject.expires,
-          sub: tokenObject.sub,
+          message: 'please register the app before login',
         });
       } else {
-        res.status(401).json({
-          success: false,
-          status: 'PasswordError',
-          message: 'you entered the wrong password',
-        });
+        if (err) {
+          res.status(500).send({
+            code: 500,
+            status: 'Error',
+            message: err.message,
+          });
+        }
+
+        if (!(user[0].verify == 0)) {
+          const isValid = utils.validPassword(
+            req.body.password,
+            user[0].hash,
+            user[0].salt
+          );
+
+          if (isValid) {
+            const tokenObject = utils.issueJWT(user);
+
+            res.status(200).json({
+              success: true,
+              status: 'LoginSuccess',
+              token: tokenObject.token,
+              expiresIn: tokenObject.expires,
+              sub: tokenObject.sub,
+            });
+          } else {
+            res.status(401).json({
+              success: false,
+              status: 'PasswordError',
+              message: 'you entered the wrong password',
+            });
+          }
+        } else {
+          return res.status(200).json({
+            success: false,
+            code: 200,
+            message: 'please verify the email before login',
+          });
+        }
       }
     });
   } catch (err) {
@@ -290,10 +310,6 @@ exports.updateUser = async function (req, res) {
   }
 };
 
-
-
-
-
 exports.getAllUsers = async function (req, res) {
   try {
     User.getAllUsers((err, data) => {
@@ -316,8 +332,7 @@ exports.getAllUsers = async function (req, res) {
   } catch (e) {
     return res.status(400).json({ status: 400, message: e.message });
   }
-}
-
+};
 
 exports.getUserByName = async function (req, res) {
   try {
@@ -326,25 +341,25 @@ exports.getUserByName = async function (req, res) {
         return res.status(500).send({
           success: false,
           code: 500,
-          status: "not success",
-          message: "error",
+          status: 'not success',
+          message: 'error',
         });
       }
       if (data.length) {
         return res.status(200).json({
           success: true,
           code: 200,
-          status: "success",
+          status: 'success',
           data: data,
-          message: "User is received",
+          message: 'User is received',
         });
       } else {
         return res.status(200).send({
           success: true,
           code: 200,
-          status: "success",
+          status: 'success',
           data: data,
-          message: "User is not found",
+          message: 'User is not found',
         });
       }
     });
@@ -356,10 +371,10 @@ exports.getUserByName = async function (req, res) {
 exports.verifyAccount = async function (req, res) {
   try {
     if (req.query.token) {
-      const tokenParts = req.query.token.split(" ");
+      const tokenParts = req.query.token.split(' ');
 
       if (
-        tokenParts[0] === "Bearer" &&
+        tokenParts[0] === 'Bearer' &&
         tokenParts[1].match(/\S+\.\S+\.\S+/) !== null
       ) {
         try {
@@ -367,44 +382,48 @@ exports.verifyAccount = async function (req, res) {
             tokenParts[1],
             process.env.ACCESS_SECRET_TOKEN
           );
-          console.log("dileepa Uth"+verification.sub.email)
+          console.log('dileepa Uth' + verification.sub.email);
           User.findOne(verification.sub.email, (err, data) => {
             if (err) {
               return res.status(500).send({
                 success: false,
                 code: 500,
-                status: "not success",
-                message: "error",
+                status: 'not success',
+                message: 'error',
               });
             }
             if (data.length) {
-              console.log(data)
+              console.log(data);
               const updateUser = data[0];
-              User.verifyUser(updateUser.id, {...updateUser,verify:1}, (err, data) => {
-                if (err)
-                  return res.status(500).send({
-                    success: false,
-                    code: 500,
-                    status: 'not success',
-                    message: err.message,
-                  });
-                else {
-                  return res.status(200).json({
-                    success: true,
-                    code: 200,
-                    status: 'success',
-                    user: data,
-                    message: "Successfully Registered",
-                  });
+              User.verifyUser(
+                updateUser.id,
+                { ...updateUser, verify: 1 },
+                (err, data) => {
+                  if (err)
+                    return res.status(500).send({
+                      success: false,
+                      code: 500,
+                      status: 'not success',
+                      message: err.message,
+                    });
+                  else {
+                    return res.status(200).json({
+                      success: true,
+                      code: 200,
+                      status: 'success',
+                      user: data,
+                      message: 'Successfully Registered',
+                    });
+                  }
                 }
-              });
+              );
             } else {
               return res.status(200).send({
                 success: true,
                 code: 200,
-                status: "success",
+                status: 'success',
                 data: data,
-                message: "Token is invalid. Please contact us for assistance",
+                message: 'Token is invalid. Please contact us for assistance',
               });
             }
           });
@@ -412,29 +431,29 @@ exports.verifyAccount = async function (req, res) {
           res.status(200).json({
             code: 200,
             success: false,
-            status: "Unauthorized",
-            msg: "You are not authorized to visit this route",
+            status: 'Unauthorized',
+            msg: 'You are not authorized to visit this route',
           });
         }
       } else {
         res.status(200).json({
           code: 200,
           success: false,
-          status: "Unauthorized",
-          msg: "You are not authorized to visit this route",
+          status: 'Unauthorized',
+          msg: 'You are not authorized to visit this route',
         });
       }
     } else {
       res.status(200).json({
         code: 200,
         success: false,
-        status: "TokenError",
-        msg: "You are not authorized to visit this route 3",
+        status: 'TokenError',
+        msg: 'You are not authorized to visit this route 3',
       });
     }
   } catch (error) {
     res
       .status(500)
-      .json({ code: 500, success: false, message: "Internal Server Error" });
+      .json({ code: 500, success: false, message: 'Internal Server Error' });
   }
 };
