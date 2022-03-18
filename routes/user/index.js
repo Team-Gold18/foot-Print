@@ -14,4 +14,6 @@ routes.post('/loginUser', UserController.loginUser)
 
 routes.put("/updateUser/:id", uploads.single("profilePicture"),UserController.updateUser);
 
+routes.get('/getAllUsers', UserController.getAllUsers)
+
 module.exports = routes;

@@ -283,3 +283,31 @@ exports.updateUser = async function (req, res) {
     return res.status(400).json({ status: 400, message: e.message });
   }
 };
+
+
+
+
+
+exports.getAllUsers = async function (req, res) {
+  try {
+    User.getAllUsers((err, data) => {
+      if (err) {
+        return res.status(400).json({
+          success: false,
+          code: 400,
+          status: 'not success',
+          message: 'error',
+        });
+      } else {
+        return res.status(200).json({
+          success: true,
+          code: 200,
+          status: 'success',
+          document: data,
+        });
+      }
+    });
+  } catch (e) {
+    return res.status(400).json({ status: 400, message: e.message });
+  }
+}

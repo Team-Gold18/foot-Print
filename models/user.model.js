@@ -92,4 +92,20 @@ User.findOne = (email, result)=>{
   })
 }
 
+
+User.getAllUsers = (result)=>{
+  sql.query(`SELECT * FROM user`, (err,res)=>{
+    if(err){
+      result(err, "");
+      return;
+    }
+    if(res.length){
+      result("", res);
+      return;
+    }
+    result("", "");
+      return;
+  })
+}
+
 module.exports = User;
