@@ -113,7 +113,7 @@ exports.registerUser = async function (req, res) {
     last_name: req.body.last_name,
     email: req.body.email,
     salt: salt,
-    hash: hash,
+    hash: hash
   });
 
   try {
@@ -133,8 +133,9 @@ exports.registerUser = async function (req, res) {
           message: `${email} is already exists`,
         });
       } else {
-        // Create a User
+        // Create a User 
         User.create(newUser, (err, user) => {
+          console.log("register ", user);
           if (err) {
             res.status(500).send({
               code: 500,
@@ -167,9 +168,6 @@ exports.registerUser = async function (req, res) {
                 success: true,
                 message:
                   'successfully registered user, Please verify your email !',
-                token: tokenObject.token,
-                expiresIn: tokenObject.expires,
-                sub: tokenObject.sub,
               });
             }
           }
@@ -194,6 +192,7 @@ exports.registerUser = async function (req, res) {
 exports.loginUser = async function (req, res, next) {
   try {
     User.findOne(req.body.email, (err, user) => {
+      console.log("login ", user);
       if (!user) {
         console.log(err.message);
         return res.status(401).json({
@@ -217,8 +216,8 @@ exports.loginUser = async function (req, res, next) {
           );
 
           if (isValid) {
-            const tokenObject = utils.issueJWT(user);
-
+            const tokenObject = utils.issueJWT(user[0]);
+            console.log("token",tokenObject);
             res.status(200).json({
               success: true,
               status: 'LoginSuccess',
