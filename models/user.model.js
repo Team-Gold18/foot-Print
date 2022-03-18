@@ -6,7 +6,6 @@ const User = function (user) {
   this.salt=user.salt;
   this.hash=user.hash;
   this.profilePicture = user.profilePicture;
-  this.profilePicture = user.profilePicture;
   this.birthday = user.birthday;
   this.address = user.address;
 };
@@ -61,6 +60,28 @@ User.getUserById = (id, result)=>{
 User.updateUser = (id,updatedUser, result) => {
   sql.query(
     `UPDATE user SET  first_name='${updatedUser.first_name}',last_name='${updatedUser.last_name}',email='${updatedUser.email}',birthday='${updatedUser.birthday}' ,address='${updatedUser.address}'  ,profilePicture='${updatedUser.profilePicture}' WHERE id='${id}'`,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, "");
+        return;
+      }
+
+      if (res.affectedRows === 1) {
+        result("", { id: id, ...updatedUser });
+        return;
+      }
+
+      result("", "");
+      return;
+    }
+  );
+};
+
+//verify user
+User.verifyUser = (id,updatedUser, result) => {
+  sql.query(
+    `UPDATE user SET verify='${updatedUser.verify}' WHERE id='${id}'`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);

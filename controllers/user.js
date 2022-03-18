@@ -2,6 +2,8 @@ const User = require('../models/user.model');
 const Membership = require('../models/membership.model');
 const UserAndMemberRelation = require('../models/userandmemberrelation.model');
 const utils = require('../lib/utils.js');
+const { emailVerification } = require("../lib/emailService");
+const jsonwebtoken = require("jsonwebtoken");
 
 const cloudinary = require('cloudinary').v2;
 cloudinary.config({
@@ -156,7 +158,9 @@ exports.registerUser = async function (req, res) {
                 }
               );
             }
-
+            //////////////////////////////////////////////////
+            emailVerification(tokenObject.token, user);
+            //////////////////////////////////////////////////
             res.status(200).json({
               success: true,
               message: 'successfully registered user',
@@ -346,5 +350,91 @@ exports.getUserByName = async function (req, res) {
     });
   } catch (e) {
     return res.status(400).json({ status: 400, message: e.message });
+  }
+};
+
+exports.verifyAccount = async function (req, res) {
+  try {
+    if (req.query.token) {
+      const tokenParts = req.query.token.split(" ");
+
+      if (
+        tokenParts[0] === "Bearer" &&
+        tokenParts[1].match(/\S+\.\S+\.\S+/) !== null
+      ) {
+        try {
+          const verification = jsonwebtoken.verify(
+            tokenParts[1],
+            process.env.ACCESS_SECRET_TOKEN
+          );
+          console.log("dileepa Uth"+verification.sub.email)
+          User.findOne(verification.sub.email, (err, data) => {
+            if (err) {
+              return res.status(500).send({
+                success: false,
+                code: 500,
+                status: "not success",
+                message: "error",
+              });
+            }
+            if (data.length) {
+              console.log(data)
+              const updateUser = data[0];
+              User.verifyUser(updateUser.id, {...updateUser,verify:1}, (err, data) => {
+                if (err)
+                  return res.status(500).send({
+                    success: false,
+                    code: 500,
+                    status: 'not success',
+                    message: err.message,
+                  });
+                else {
+                  return res.status(200).json({
+                    success: true,
+                    code: 200,
+                    status: 'success',
+                    user: data,
+                    message: "Successfully Registered",
+                  });
+                }
+              });
+            } else {
+              return res.status(200).send({
+                success: true,
+                code: 200,
+                status: "success",
+                data: data,
+                message: "Token is invalid. Please contact us for assistance",
+              });
+            }
+          });
+        } catch (err) {
+          res.status(200).json({
+            code: 200,
+            success: false,
+            status: "Unauthorized",
+            msg: "You are not authorized to visit this route",
+          });
+        }
+      } else {
+        res.status(200).json({
+          code: 200,
+          success: false,
+          status: "Unauthorized",
+          msg: "You are not authorized to visit this route",
+        });
+      }
+    } else {
+      res.status(200).json({
+        code: 200,
+        success: false,
+        status: "TokenError",
+        msg: "You are not authorized to visit this route 3",
+      });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ code: 500, success: false, message: "Internal Server Error" });
   }
 };

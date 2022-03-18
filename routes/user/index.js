@@ -8,14 +8,15 @@ routes.get(
   '/getMembershipConfirmation',
   UserController.getMembershipConfirmation
 );
-routes.post('/registerUser', UserController.registerUser); 
+routes.post('/registerUser', UserController.registerUser);
 
 routes.post('/loginUser', UserController.loginUser)
 
-routes.put("/updateUser/:id", uploads.single("profilePicture"),UserController.updateUser);
+routes.put("/updateUser/:id", uploads.single("profilePicture"), UserController.updateUser);
 
 routes.get('/getAllUsers', UserController.getAllUsers);
 
 routes.get('/getUser/:name', UserController.getUserByName);
 
+routes.get('/VerifyAccount', UserController.verifyAccount);
 module.exports = routes;
