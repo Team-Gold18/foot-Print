@@ -251,6 +251,8 @@ exports.updateUser = async function (req, res) {
           last_name: req.body.last_name || data[0].last_name,
           profilePicture: result?.secure_url || data[0].profilePicture,
           email: req.body.email || data[0].email,
+          birthday: req.body.birthday || data[0].birthday,
+          address: req.body.address || data[0].address,
         });
 
         User.updateUser(req.params.id, updatedUser, (err, data) => {
@@ -266,7 +268,7 @@ exports.updateUser = async function (req, res) {
               success: true,
               code: 200,
               status: 'success',
-              document: data,
+              user: data,
             });
           }
         });
