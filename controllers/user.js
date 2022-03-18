@@ -313,3 +313,38 @@ exports.getAllUsers = async function (req, res) {
     return res.status(400).json({ status: 400, message: e.message });
   }
 }
+
+
+exports.getUserByName = async function (req, res) {
+  try {
+    User.getUserByname(req.params.name, (err, data) => {
+      if (err) {
+        return res.status(500).send({
+          success: false,
+          code: 500,
+          status: "not success",
+          message: "error",
+        });
+      }
+      if (data.length) {
+        return res.status(200).json({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "User is received",
+        });
+      } else {
+        return res.status(200).send({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "User is not found",
+        });
+      }
+    });
+  } catch (e) {
+    return res.status(400).json({ status: 400, message: e.message });
+  }
+};

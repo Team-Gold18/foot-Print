@@ -111,4 +111,20 @@ User.getAllUsers = (result)=>{
   })
 }
 
+
+User.getUserByname = (name, result)=>{
+  sql.query(`SELECT * FROM user WHERE first_name = '${name}'`, (err,res)=>{
+    if(err){
+      result(err, "");
+      return;
+    }
+    if(res.length){
+      result("", res);
+      return;
+    }
+    result("", "");
+      return;
+  })
+}
+
 module.exports = User;
