@@ -1,4 +1,6 @@
 const Document = require("../models/document.model");
+var dateTime = require('node-datetime');
+var dt = dateTime.create();
 
 const cloudinary = require("cloudinary").v2;
 cloudinary.config({
@@ -16,10 +18,11 @@ exports.uploadDocument = async function (req, res) {
     console.log("result", result);
 
     const newDocument = new Document({
-      doctor_id: req.body.doctor_id,
+      doctor_id: req.jwt.sub.id,
       document_name: req.body.document_name,
       documentFile: result.secure_url,
       cloudinary_id: result.public_id,
+      created_at: dt.format('Y-m-d'),
     });
     try {
       if (!req.body) {
@@ -58,6 +61,7 @@ exports.uploadDocument = async function (req, res) {
 };
 
 exports.getAllDocuments = async function (req, res) {
+  //console.log("token",req.jwt.sub.id);
   try {
     Document.getAllDocuments((err, data) => {
       if (err) {
@@ -94,6 +98,185 @@ exports.getAllDocuments = async function (req, res) {
 exports.getDocumentById = async function (req, res) {
   try {
     Document.getDocumentById(req.params.id, (err, data) => {
+      if (err) {
+        return res.status(500).send({
+          success: false,
+          code: 500,
+          status: "not success",
+          message: "error",
+        });
+      }
+      if (data.length) {
+        return res.status(200).json({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "Document is received",
+        });
+      } else {
+        return res.status(200).send({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "Document is not found",
+        });
+      }
+    });
+  } catch (e) {
+    return res.status(400).json({ status: 400, message: e.message });
+  }
+};
+
+
+exports.getDocumentByName = async function (req, res) {
+  try {
+    
+    Document.getDocumentByName(req.params.name, (err, data) => {
+      
+      if (err) {
+        return res.status(500).send({
+          success: false,
+          code: 500,
+          status: "not success",
+          message: "error",
+        });
+      }
+      if (data.length) {
+        return res.status(200).json({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "Document is received",
+        });
+      } else {
+        return res.status(200).send({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "Document is not found",
+        });
+      }
+    });
+  } catch (e) {
+    return res.status(400).json({ status: 400, message: e.message });
+  }
+};
+
+
+exports.sortDocumentsByName = async function (req, res) {
+  try {
+    
+    Document.sortDocumentsByName( (err, data) => {
+      
+      if (err) {
+        return res.status(500).send({
+          success: false,
+          code: 500,
+          status: "not success",
+          message: "error",
+        });
+      }
+      if (data.length) {
+        return res.status(200).json({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "Document is received",
+        });
+      } else {
+        return res.status(200).send({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "Document is not found",
+        });
+      }
+    });
+  } catch (e) {
+    return res.status(400).json({ status: 400, message: e.message });
+  }
+};
+
+exports.sortDocumentsByDate = async function (req, res) {
+  try {
+    
+    Document.sortDocumentsByDate( (err, data) => {
+      
+      if (err) {
+        return res.status(500).send({
+          success: false,
+          code: 500,
+          status: "not success",
+          message: "error",
+        });
+      }
+      if (data.length) {
+        return res.status(200).json({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "Document is received",
+        });
+      } else {
+        return res.status(200).send({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "Document is not found",
+        });
+      }
+    });
+  } catch (e) {
+    return res.status(400).json({ status: 400, message: e.message });
+  }
+};
+
+exports.getDocumentByDoctorId = async function (req, res) {
+  try {
+    Document.getDocumentByDoctorId(req.params.id, (err, data) => {
+      if (err) {
+        return res.status(500).send({
+          success: false,
+          code: 500,
+          status: "not success",
+          message: "error",
+        });
+      }
+      if (data.length) {
+        return res.status(200).json({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "Document is received",
+        });
+      } else {
+        return res.status(200).send({
+          success: true,
+          code: 200,
+          status: "success",
+          data: data,
+          message: "Document is not found",
+        });
+      }
+    });
+  } catch (e) {
+    return res.status(400).json({ status: 400, message: e.message });
+  }
+};
+
+
+exports.getDocumentByLogedDoctor = async function (req, res) {
+  try {
+    Document.getDocumentByLogedDoctor(req.jwt.sub.id, (err, data) => {
       if (err) {
         return res.status(500).send({
           success: false,
