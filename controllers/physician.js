@@ -264,3 +264,126 @@ exports.create = async function (req, res) {
       });
     }
   };
+
+
+  exports.searchPhysicianById = async function (req, res) {
+    try {
+      Physician.searchPhysicianById(req.params.id, (err, data) => {
+        if (err) {
+          return res.status(400).json({
+            success: globalMessage.NotSuccess,
+            code: globalMessage.ServerCode,
+            status: globalMessage.SeverErrorMessage,
+            message: err.message,
+          });
+        }
+        
+        if (data.length) {
+          return res.status(200).json({
+            success: globalMessage.Success,
+            code: globalMessage.SuccessCode,
+            status: globalMessage.SuccessStatus,
+            data: data,
+            message: globalMessage.ItemReceived,
+          });
+        } else {
+          return res.status(200).send({
+            success: globalMessage.Success,
+            code: globalMessage.SuccessCode,
+            status: globalMessage.SuccessStatus,
+            data: data,
+            message: "Physician is not found",
+          });
+          }      
+        });
+    } catch (e) {
+      return res.status(400).json({
+        success: globalMessage.NotSuccess,
+        code: globalMessage.BadCode,
+        status: globalMessage.BadMessage,
+        message: e.message,
+      });
+    }
+  };
+
+
+  exports.searchPhysicianByName = async function (req, res) {
+    try {
+      Physician.searchPhysicianByName(req.params.name, (err, data) => {
+        if (err) {
+          return res.status(400).json({
+            success: globalMessage.NotSuccess,
+            code: globalMessage.ServerCode,
+            status: globalMessage.SeverErrorMessage,
+            message: err.message,
+          });
+        }
+        
+        if (data.length) {
+          return res.status(200).json({
+            success: globalMessage.Success,
+            code: globalMessage.SuccessCode,
+            status: globalMessage.SuccessStatus,
+            data: data,
+            message: globalMessage.ItemReceived,
+          });
+        } else {
+          return res.status(200).send({
+            success: globalMessage.Success,
+            code: globalMessage.SuccessCode,
+            status: globalMessage.SuccessStatus,
+            data: data,
+            message: "Physician is not found",
+          });
+          }      
+        });
+    } catch (e) {
+      return res.status(400).json({
+        success: globalMessage.NotSuccess,
+        code: globalMessage.BadCode,
+        status: globalMessage.BadMessage,
+        message: e.message,
+      });
+    }
+  };
+
+
+  exports.sortPhysician = async function (req, res) {
+    try {
+      Physician.sortPhysicianByName((err, data) => {
+        if (err) {
+          return res.status(400).json({
+            success: globalMessage.NotSuccess,
+            code: globalMessage.ServerCode,
+            status: globalMessage.SeverErrorMessage,
+            message: err.message,
+          });
+        }
+        
+        if (data.length) {
+          return res.status(200).json({
+            success: globalMessage.Success,
+            code: globalMessage.SuccessCode,
+            status: globalMessage.SuccessStatus,
+            data: data,
+            message: globalMessage.ItemReceived,
+          });
+        } else {
+          return res.status(200).send({
+            success: globalMessage.Success,
+            code: globalMessage.SuccessCode,
+            status: globalMessage.SuccessStatus,
+            data: data,
+            message: "Physician is not found",
+          });
+          }      
+        });
+    } catch (e) {
+      return res.status(400).json({
+        success: globalMessage.NotSuccess,
+        code: globalMessage.BadCode,
+        status: globalMessage.BadMessage,
+        message: e.message,
+      });
+    }
+  };

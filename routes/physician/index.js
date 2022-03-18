@@ -8,4 +8,8 @@ routes.delete("/delete/:id", PhysicianController.delete);
 routes.get('/getAllPhysician', PhysicianController.getAllPhysician);
 routes.get('/getPhysician/:id', PhysicianController.getPhysicianById);
 
+routes.get('/searchPhysicianById/:id',  PhysicianController.searchPhysicianById);
+routes.get('/searchPhysicianByName/:name',  PhysicianController.searchPhysicianByName);
+routes.get('/sortPhysician',  PhysicianController.sortPhysician);
+
 module.exports = routes;
