@@ -17,6 +17,7 @@ const Physician = function (physician) {
   this.last_appoint_date = physician.last_appoint_date;
   this.next_appoint_date = physician.next_appoint_date;
   this.is_primary_physician = physician.is_primary_physician;
+
 };
 
 Physician.checkAvailability = (email_address, result) => {
@@ -142,5 +143,61 @@ Physician.delete = (id, result) => {
       result("", "");
     });
   };
+
+
+  Physician.searchPhysicianById = (id,result) => {
+    sql.query(`SELECT * FROM physician_and_therapists WHERE id='${id}'`, (err, res) => {
+      if (err) {
+        result(err, "");
+        return;
+      }
+  
+      if (res.length) {
+        result("", res);
+        return;
+      }
+ 
+      result("", "");
+      return;
+    });
+  };
+
+  Physician.searchPhysicianByName = (name,result) => {
+    sql.query(`SELECT * FROM physician_and_therapists WHERE first_name='${name}'`, (err, res) => {
+      if (err) {
+        result(err, "");
+        return;
+      }
+  
+      if (res.length) {
+        console.log("aaaa",res.length)
+        result("", res);
+        return;
+      }
+ 
+      result("", "");
+      return;
+    });
+  };
+
+
+  Physician.sortPhysicianByName = (result) => {
+    sql.query(
+      "SELECT * FROM physician_and_therapists ORDER BY first_name,last_name ASC", (err, res) => {
+      if (err) {
+        result(err, "");
+        return;
+      }
+  
+      if (res.length) {
+        result("", res);
+        return;
+      }
+
+      result("", ""); 
+      return;
+    });
+  };
+
 
 module.exports = Physician;
