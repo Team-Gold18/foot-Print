@@ -6,7 +6,7 @@ const Document = function (data) {
   this.document_name = data.document_name;
   this.documentFile = data.documentFile;
   this.cloudinary_id = data.cloudinary_id;
-  this.created_at=data.created_at;
+  this.created_at = data.created_at;
 };
 
 Document.uploadDocuments = (newDocument, result) => {
@@ -22,116 +22,133 @@ Document.uploadDocuments = (newDocument, result) => {
   });
 };
 
-Document.getAllDocuments = (result)=>{
-  sql.query("SELECT * FROM documents", (err,res)=>{
-    if(err){
+Document.getAllDocuments = (result) => {
+  sql.query("SELECT * FROM documents", (err, res) => {
+    if (err) {
       result(err, "");
       return;
     }
-    if(result.length){
+    if (result.length) {
       result("", res);
       return;
     }
     result("", "");
-      return;
-  })
-}
+    return;
+  });
+};
 
-Document.getDocumentById = (id, result)=>{
-  sql.query(`SELECT * FROM documents WHERE id = '${id}'`, (err,res)=>{
-    if(err){
+//hgvkghv
+Document.getDocumentById = (id, result) => {
+  sql.query(`SELECT * FROM documents WHERE id = '${id}'`, (err, res) => {
+    if (err) {
       result(err, "");
       return;
     }
-    if(res.length){
+    if (res.length) {
       result("", res);
       return;
     }
     result("", "");
-      return;
-  })
-}
+    return;
+  });
+};
 
-Document.getDocumentByDoctorId = (doctor_id, result)=>{
-  sql.query(`SELECT * FROM documents WHERE doctor_id = '${doctor_id}'`, (err,res)=>{
-    if(err){
-      result(err, "");
+Document.getDocumentByDoctorId = (doctor_id, result) => {
+  sql.query(
+    `SELECT * FROM documents WHERE doctor_id = '${doctor_id}'`,
+    (err, res) => {
+      if (err) {
+        result(err, "");
+        return;
+      }
+      if (res.length) {
+        result("", res);
+        return;
+      }
+      result("", "");
       return;
     }
-    if(res.length){
-      result("", res);
-      return;
-    }
-    result("", "");
-      return;
-  })
-}
+  );
+};
 
-Document.getDocumentByLogedDoctor = (user_id, result)=>{
-  sql.query(`SELECT * FROM documents WHERE doctor_id = '${user_id}'`, (err,res)=>{
-    if(err){
-      result(err, "");
+Document.getDocumentByLogedDoctor = (user_id, result) => {
+  sql.query(
+    `SELECT * FROM documents WHERE doctor_id = '${user_id}'`,
+    (err, res) => {
+      if (err) {
+        result(err, "");
+        return;
+      }
+      if (res.length) {
+        result("", res);
+        return;
+      }
+      result("", "");
       return;
     }
-    if(res.length){
-      result("", res);
-      return;
-    }
-    result("", "");
-      return;
-  })
-}
+  );
+};
 
-Document.getDocumentByName = (name, result)=>{
-  console.log("name",name);
-  sql.query(`SELECT * FROM documents WHERE document_name = '${name}'`, (err,res)=>{
-    if(err){
-      result(err, "");
+Document.getDocumentByName = (name, result) => {
+  console.log("name", name);
+  sql.query(
+    `SELECT * FROM documents WHERE document_name = '${name}'`,
+    (err, res) => {
+      if (err) {
+        result(err, "");
+        return;
+      }
+      console.log(res);
+      if (res.length) {
+        result("", res);
+        return;
+      }
+      result("", "");
       return;
     }
-    console.log(res);
-    if(res.length){
-      result("", res);
-      return;
-    }
-    result("", "");
-      return;
-  })
-}
+  );
+};
 
-Document.sortDocumentsByName = (result)=>{
-  sql.query("SELECT * FROM documents ORDER BY document_name ASC", (err,res)=>{
-    if(err){
-      result(err, "");
+Document.sortDocumentsByName = (result) => {
+  sql.query(
+    "SELECT * FROM documents ORDER BY document_name ASC",
+    (err, res) => {
+      if (err) {
+        result(err, "");
+        return;
+      }
+      if (result.length) {
+        result("", res);
+        return;
+      }
+      result("", "");
       return;
     }
-    if(result.length){
-      result("", res);
-      return;
-    }
-    result("", "");
-      return;
-  })
-}
+  );
+};
 
-Document.sortDocumentsByDate = (result)=>{
-  sql.query("SELECT * FROM documents ORDER BY created_at ASC", (err,res)=>{
-    if(err){
+Document.sortDocumentsByDate = (result) => {
+  sql.query("SELECT * FROM documents ORDER BY created_at ASC", (err, res) => {
+    if (err) {
       result(err, "");
       return;
     }
-    if(result.length){
+    if (result.length) {
       result("", res);
       return;
     }
     result("", "");
-      return;
-  })
-}
+    return;
+  });
+};
 
 Document.updateDocument = (id, updatedDocument, result) => {
   sql.query(
-    `UPDATE documents SET doctor_id='${updatedDocument.doctor_id}', document_name='${updatedDocument.document_name}',documentFile='${updatedDocument.documentFile}',cloudinary_id='${updatedDocument.cloudinary_id}'  WHERE id='${id}'`,
+    `UPDATE documents SET 
+    doctor_id='${updatedDocument.doctor_id}', 
+    document_name='${updatedDocument.document_name}',
+    documentFile='${updatedDocument.documentFile}',
+    cloudinary_id='${updatedDocument.cloudinary_id}'  WHERE id='${id}'`,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
