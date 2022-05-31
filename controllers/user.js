@@ -2,7 +2,7 @@ const User = require('../models/user.model');
 const Membership = require('../models/membership.model');
 const UserAndMemberRelation = require('../models/userandmemberrelation.model');
 const utils = require('../lib/utils.js');
-const { emailVerification } = require('../lib/emailService');
+const { emailVerification, loginEmail } = require('../lib/emailService');
 const jsonwebtoken = require('jsonwebtoken');
 const e = require('cors');
 
@@ -217,14 +217,15 @@ exports.loginUser = async function (req, res, next) {
 
           if (isValid) {
             const tokenObject = utils.issueJWT(user[0]);
-            console.log("token",tokenObject);
-            res.status(200).json({
+            if (loginEmail(user[0])) {
+              res.status(200).json({
               success: true,
               status: 'LoginSuccess',
               token: tokenObject.token,
               expiresIn: tokenObject.expires,
               sub: tokenObject.sub,
             });
+            }
           } else {
             res.status(401).json({
               success: false,
