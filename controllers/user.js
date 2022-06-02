@@ -107,13 +107,15 @@ exports.registerUser = async function (req, res) {
   const saltHash = utils.genPassword(req.body.password);
   const salt = saltHash.salt;
   const hash = saltHash.hash;
+  const device_id = req.body.device_id; 
 
   const newUser = new User({
     first_name: req.body.first_name,
     last_name: req.body.last_name,
     email: req.body.email,
     salt: salt,
-    hash: hash
+    hash: hash,
+    device_id: device_id,
   });
 
   try {
@@ -142,9 +144,14 @@ exports.registerUser = async function (req, res) {
               status: 'Error',
               message: err.message,
             });
-          } else {
+          }
+          
+          
+          else {
+            console.log("user1", user);
             const tokenObject = utils.issueJWT(user);
             if (membershipNumbers.length) {
+              console.log("user2", user);
               UserAndMemberRelation.create(
                 user.id,
                 membershipNumbers,
