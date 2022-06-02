@@ -1,12 +1,12 @@
-const User = require('../models/user.model');
-const Membership = require('../models/membership.model');
-const UserAndMemberRelation = require('../models/userandmemberrelation.model');
-const utils = require('../lib/utils.js');
-const { emailVerification, loginEmail } = require('../lib/emailService');
-const jsonwebtoken = require('jsonwebtoken');
-const e = require('cors');
+const User = require("../models/user.model");
+const Membership = require("../models/membership.model");
+const UserAndMemberRelation = require("../models/userandmemberrelation.model");
+const utils = require("../lib/utils.js");
+const { emailVerification, loginEmail } = require("../lib/emailService");
+const jsonwebtoken = require("jsonwebtoken");
+const e = require("cors");
 
-const cloudinary = require('cloudinary').v2;
+const cloudinary = require("cloudinary").v2;
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
@@ -19,24 +19,24 @@ exports.getMembershipDetails = async function (req, res) {
       console.log(result);
       if (err) {
         return res.status(201).json({
-          success: 'true',
+          success: "true",
           code: 201,
           error: err,
         });
       }
       if (result.length) {
         return res.status(200).json({
-          success: 'true',
+          success: "true",
           code: 200,
           data: result,
-          message: 'Data successfully received',
+          message: "Data successfully received",
         });
       } else {
         return res.status(200).json({
-          success: 'true',
+          success: "true",
           code: 200,
           data: result,
-          message: 'this email not in the database',
+          message: "this email not in the database",
         });
       }
     });
@@ -58,8 +58,8 @@ exports.getMembershipConfirmation = async function (req, res) {
     Membership.getMembershipConfirmation(accessCode, (err, result) => {
       if (err) {
         return res.status(200).json({
-          success: 'true',
-          status: 'false',
+          success: "true",
+          status: "false",
           code: 200,
           error: err,
         });
@@ -68,26 +68,26 @@ exports.getMembershipConfirmation = async function (req, res) {
       if (result.length) {
         if (membership == result[0].membership_number) {
           return res.status(200).json({
-            success: 'true',
-            status: 'true',
+            success: "true",
+            status: "true",
             code: 200,
             data: result,
-            message: 'Valid accessCode and membership_number',
+            message: "Valid accessCode and membership_number",
           });
         } else {
           return res.status(200).json({
-            success: 'true',
-            status: 'false',
+            success: "true",
+            status: "false",
             code: 200,
-            message: 'Invalid accessCode and membership_number',
+            message: "Invalid accessCode and membership_number",
           });
         }
       } else {
         return res.status(200).json({
-          success: 'true',
-          status: 'false',
+          success: "true",
+          status: "false",
           code: 200,
-          message: 'invalid accessCode',
+          message: "invalid accessCode",
         });
       }
     });
@@ -107,7 +107,7 @@ exports.registerUser = async function (req, res) {
   const saltHash = utils.genPassword(req.body.password);
   const salt = saltHash.salt;
   const hash = saltHash.hash;
-  const device_id = req.body.device_id; 
+  const device_id = req.body.device_id;
 
   const newUser = new User({
     first_name: req.body.first_name,
@@ -122,9 +122,9 @@ exports.registerUser = async function (req, res) {
     if (!req.body) {
       res.status(400).json({
         code: 400,
-        from: 'DB',
-        status: 'BadRequest',
-        message: 'Content can not be empty!',
+        from: "DB",
+        status: "BadRequest",
+        message: "Content can not be empty!",
       });
     }
 
@@ -135,19 +135,16 @@ exports.registerUser = async function (req, res) {
           message: `${email} is already exists`,
         });
       } else {
-        // Create a User 
+        // Create a User
         User.create(newUser, (err, user) => {
           console.log("register ", user);
           if (err) {
             res.status(500).send({
               code: 500,
-              status: 'Error',
+              status: "Error",
               message: err.message,
             });
-          }
-          
-          
-          else {
+          } else {
             console.log("user1", user);
             const tokenObject = utils.issueJWT(user);
             if (membershipNumbers.length) {
@@ -159,7 +156,7 @@ exports.registerUser = async function (req, res) {
                   if (err) {
                     res.status(500).send({
                       code: 500,
-                      status: 'Error',
+                      status: "Error",
                       message: err.message,
                     });
                   } else {
@@ -174,7 +171,7 @@ exports.registerUser = async function (req, res) {
               res.status(200).json({
                 success: true,
                 message:
-                  'successfully registered user, Please verify your email !',
+                  "successfully registered user, Please verify your email !",
               });
             }
           }
@@ -182,7 +179,7 @@ exports.registerUser = async function (req, res) {
       }
       //Error Handling
       if (err) {
-        console.log('ERROR');
+        console.log("ERROR");
         return res.status(400).json({ status: 400, message: err });
       }
     });
@@ -204,13 +201,13 @@ exports.loginUser = async function (req, res, next) {
         console.log(err.message);
         return res.status(401).json({
           success: false,
-          message: 'please register the app before login',
+          message: "please register the app before login",
         });
       } else {
         if (err) {
           res.status(500).send({
             code: 500,
-            status: 'Error',
+            status: "Error",
             message: err.message,
           });
         }
@@ -222,29 +219,35 @@ exports.loginUser = async function (req, res, next) {
             user[0].salt
           );
 
-          if (isValid) {
-            const tokenObject = utils.issueJWT(user[0]);
-            if (loginEmail(user[0])) {
-              res.status(200).json({
-              success: true,
-              status: 'LoginSuccess',
-              token: tokenObject.token,
-              expiresIn: tokenObject.expires,
-              sub: tokenObject.sub,
-            });
+          if (user[0].device_id == req.body.device_id) {
+            if (isValid) {
+              const tokenObject = utils.issueJWT(user[0]);
+              if (loginEmail(user[0])) {
+                return res.status(200).json({
+                  success: true,
+                  status: "LoginSuccess",
+                  token: tokenObject.token,
+                  expiresIn: tokenObject.expires,
+                  sub: tokenObject.sub,
+                });
+              }
+            } else {
+              return res.status(401).json({
+                success: false,
+                message: "invalid password",
+              });
             }
           } else {
-            res.status(401).json({
+            return res.status(401).json({
               success: false,
-              status: 'PasswordError',
-              message: 'you entered the wrong password',
+              message: "invalid device id",
             });
           }
         } else {
           return res.status(200).json({
             success: false,
             code: 200,
-            message: 'please verify the email before login',
+            message: "please verify the email before login",
           });
         }
       }
@@ -265,15 +268,15 @@ exports.updateUser = async function (req, res) {
         return res.status(400).json({
           success: false,
           code: 500,
-          status: 'not success',
-          message: 'error',
+          status: "not success",
+          message: "error",
         });
       }
       if (data.length) {
         let result;
         if (req.file) {
           result = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'profilePicture',
+            folder: "profilePicture",
           });
         }
 
@@ -291,14 +294,14 @@ exports.updateUser = async function (req, res) {
             return res.status(500).send({
               success: false,
               code: 500,
-              status: 'not success',
+              status: "not success",
               message: err.message,
             });
           else {
             return res.status(200).json({
               success: true,
               code: 200,
-              status: 'success',
+              status: "success",
               user: data,
             });
           }
@@ -307,8 +310,8 @@ exports.updateUser = async function (req, res) {
         return res.status(200).json({
           success: true,
           code: 200,
-          status: 'success',
-          message: 'User is not found',
+          status: "success",
+          message: "User is not found",
         });
       }
     });
@@ -324,14 +327,14 @@ exports.getAllUsers = async function (req, res) {
         return res.status(400).json({
           success: false,
           code: 400,
-          status: 'not success',
-          message: 'error',
+          status: "not success",
+          message: "error",
         });
       } else {
         return res.status(200).json({
           success: true,
           code: 200,
-          status: 'success',
+          status: "success",
           document: data,
         });
       }
@@ -348,25 +351,25 @@ exports.getUserByName = async function (req, res) {
         return res.status(500).send({
           success: false,
           code: 500,
-          status: 'not success',
-          message: 'error',
+          status: "not success",
+          message: "error",
         });
       }
       if (data.length) {
         return res.status(200).json({
           success: true,
           code: 200,
-          status: 'success',
+          status: "success",
           data: data,
-          message: 'User is received',
+          message: "User is received",
         });
       } else {
         return res.status(200).send({
           success: true,
           code: 200,
-          status: 'success',
+          status: "success",
           data: data,
-          message: 'User is not found',
+          message: "User is not found",
         });
       }
     });
@@ -378,10 +381,10 @@ exports.getUserByName = async function (req, res) {
 exports.verifyAccount = async function (req, res) {
   try {
     if (req.query.token) {
-      const tokenParts = req.query.token.split(' ');
+      const tokenParts = req.query.token.split(" ");
 
       if (
-        tokenParts[0] === 'Bearer' &&
+        tokenParts[0] === "Bearer" &&
         tokenParts[1].match(/\S+\.\S+\.\S+/) !== null
       ) {
         try {
@@ -389,14 +392,14 @@ exports.verifyAccount = async function (req, res) {
             tokenParts[1],
             process.env.ACCESS_SECRET_TOKEN
           );
-          console.log('dileepa Uth' + verification.sub.email);
+          console.log("dileepa Uth" + verification.sub.email);
           User.findOne(verification.sub.email, (err, data) => {
             if (err) {
               return res.status(500).send({
                 success: false,
                 code: 500,
-                status: 'not success',
-                message: 'error',
+                status: "not success",
+                message: "error",
               });
             }
             if (data.length) {
@@ -410,16 +413,16 @@ exports.verifyAccount = async function (req, res) {
                     return res.status(500).send({
                       success: false,
                       code: 500,
-                      status: 'not success',
+                      status: "not success",
                       message: err.message,
                     });
                   else {
                     return res.status(200).json({
                       success: true,
                       code: 200,
-                      status: 'success',
+                      status: "success",
                       user: data,
-                      message: 'Successfully Registered',
+                      message: "Successfully Registered",
                     });
                   }
                 }
@@ -428,9 +431,9 @@ exports.verifyAccount = async function (req, res) {
               return res.status(200).send({
                 success: true,
                 code: 200,
-                status: 'success',
+                status: "success",
                 data: data,
-                message: 'Token is invalid. Please contact us for assistance',
+                message: "Token is invalid. Please contact us for assistance",
               });
             }
           });
@@ -438,29 +441,29 @@ exports.verifyAccount = async function (req, res) {
           res.status(200).json({
             code: 200,
             success: false,
-            status: 'Unauthorized',
-            msg: 'You are not authorized to visit this route',
+            status: "Unauthorized",
+            msg: "You are not authorized to visit this route",
           });
         }
       } else {
         res.status(200).json({
           code: 200,
           success: false,
-          status: 'Unauthorized',
-          msg: 'You are not authorized to visit this route',
+          status: "Unauthorized",
+          msg: "You are not authorized to visit this route",
         });
       }
     } else {
       res.status(200).json({
         code: 200,
         success: false,
-        status: 'TokenError',
-        msg: 'You are not authorized to visit this route 3',
+        status: "TokenError",
+        msg: "You are not authorized to visit this route 3",
       });
     }
   } catch (error) {
     res
       .status(500)
-      .json({ code: 500, success: false, message: 'Internal Server Error' });
+      .json({ code: 500, success: false, message: "Internal Server Error" });
   }
 };
