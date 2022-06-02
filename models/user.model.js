@@ -8,6 +8,7 @@ const User = function (user) {
   this.profilePicture = user.profilePicture;
   this.birthday = user.birthday;
   this.address = user.address;
+  this.device_id = user.device_id;
 };
 
 //findByEmail
