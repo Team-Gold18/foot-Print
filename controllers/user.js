@@ -145,9 +145,9 @@ exports.registerUser = async function (req, res) {
               message: err.message,
             });
           } else {
-            console.log("user1", user);
+         
             const tokenObject = utils.issueJWT(user);
-            if (membershipNumbers.length) {
+            /*if (membershipNumbers.length) {
               console.log("user2", user);
               UserAndMemberRelation.create(
                 user.id,
@@ -163,7 +163,7 @@ exports.registerUser = async function (req, res) {
                   }
                 }
               );
-            }
+            }*/
             //////////////////////////////////////////////////
             //emailVerification(tokenObject.token, user);
             //////////////////////////////////////////////////
